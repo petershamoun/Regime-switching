@@ -1,0 +1,12 @@
+data:
+  tickers: ["SPY", "BIL"]
+  start: "2010-01-01"
+  end: "2025-01-01"
+
+model:
+  n_states: 2
+  cov_type: "full"
+  regime_names: ["Bull", "Bear"]
+
+signals:
+  threshold: 0.5
