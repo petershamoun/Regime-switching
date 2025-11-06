@@ -29,3 +29,40 @@ Outputs include smoothed regime probabilities, expected returns per state, and d
 
 ## 🧩 Project Structure
 
+Regime-switching/
+
+│
+├── config/
+│ └── config.yaml # model + data configuration
+│
+├── src/
+│ ├── init.py
+│ ├── data.py # data loader and preprocessing
+│ ├── model.py # MSM estimation and regime extraction
+│ ├── signals.py # signal generation logic
+│ ├── backtest.py # backtest and performance metrics
+│ ├── plots.py # visualization helpers
+│ └── run_baseline.py # main execution script
+│
+├── requirements.txt
+└── README.md
+
+
+---
+
+## 🧠 Dependencies
+
+Install all dependencies with:
+
+```bash
+pip install -r requirements.txt
+
+The script:
+
+loads price data (default: SPY & BIL),
+
+fits a two-state MSM on returns,
+
+prints summary statistics,
+
+and plots regime probabilities, equity curve, and drawdown.
