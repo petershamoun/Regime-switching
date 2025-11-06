@@ -50,12 +50,13 @@ Regime-switching/
 
 ---
 
-## 🧠 Dependencies
+## 🧩 Dependencies
 
 Install all dependencies with:
 
 ```bash
 pip install -r requirements.txt
+```
 
 The script:
 
@@ -66,3 +67,4 @@ fits a two-state MSM on returns,
 prints summary statistics,
 
 and plots regime probabilities, equity curve, and drawdown.
+
