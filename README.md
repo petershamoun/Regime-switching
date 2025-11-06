@@ -7,7 +7,7 @@ The project provides a modular, reproducible pipeline for fitting, visualizing, 
 
 ## 📈 Overview
 
-Markets alternate between distinct return-volatility regimes — expansions and contractions, calm and turbulence.  
+Markets alternate between distinct return-volatility regimes - expansions and contractions, calm and turbulence.  
 This project models those shifts using a **two-state Markov process**, where the probability of remaining in or switching between regimes evolves dynamically through time.
 
 The MSM is estimated via **Maximum Likelihood**, using `statsmodels`’ hidden-Markov implementation.  
