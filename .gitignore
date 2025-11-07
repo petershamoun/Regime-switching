@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+sector-rotation/data/*.csv
+sector-rotation/data/*.png
+sector-rotation/data/*.json
+*.pyc
+*.pyo
+*.DS_Store

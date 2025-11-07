@@ -1,0 +1,22 @@
+start: "2004-01-01"
+end: null
+rebalance: "M"
+fee_bps: 10
+target_annual_vol: 0.12
+turnover_cap: 0.30
+data_dir: "data"
+data_cache: "data/prices.csv"
+hmm:
+  n_states: 2
+  fit_lookback_days: 750
+  random_state: null
+  features: ["ret_spy", "d_vix"]
+signals:
+  momentum_months: 12
+  skip_last_months: 1
+  top_k: 4
+  inverse_vol_lookback_days: 60
+  hrp_lookback_days: 60
+defensives: ["XLP", "XLV", "XLU"]
+sectors: ["XLY", "XLP", "XLE", "XLF", "XLK", "XLI", "XLB", "XLV", "XLU", "XLRE", "XLC"]
+bench: ["SPY", "IEF"]
