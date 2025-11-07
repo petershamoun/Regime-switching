@@ -6,12 +6,37 @@ from typing import List
 
 import pandas as pd
 
-from src import allocators, backtest, data, regimes_hmm, reporting, signals, utils
+from regime_pipeline.regime_detection.pipeline import run_regime_detection
+from regime_pipeline.sector_rotation import (
+    allocators,
+    backtest,
+    data,
+    reporting,
+    signals,
+    utils,
+)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run regime-switching sector rotation backtest.")
-    parser.add_argument("--config", type=str, default="config.yaml", help="Path to configuration file.")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=str(Path("configs") / "sector_rotation.yaml"),
+        help="Path to the sector-rotation configuration file.",
+    )
+    parser.add_argument(
+        "--regime-config",
+        type=str,
+        default=None,
+        help="Optional override for the regime detection configuration (Part 1).",
+    )
+    parser.add_argument(
+        "--regime-artifacts",
+        type=str,
+        default="artifacts/regime_detection",
+        help="Directory to cache/read regime detection outputs.",
+    )
     return parser.parse_args()
 
 
@@ -51,13 +76,17 @@ def main() -> None:
     prices = data.load_all(start=start, end=end, tickers=feature_tickers)
     prices = prices.dropna(how="all")
 
-    features = regimes_hmm.make_features(prices)
-    regimes = regimes_hmm.fit_predict_hmm(
-        features,
-        lookback=config.get("hmm", {}).get("fit_lookback_days", 750),
-        n_states=config.get("hmm", {}).get("n_states", 2),
-        rebal=rebalance,
-    )
+    regime_dir = Path(args.regime_artifacts)
+    risk_path = regime_dir / "risk_signal.csv"
+    if risk_path.exists():
+        regimes = pd.read_csv(risk_path, index_col=0, parse_dates=True)["risk_on"]
+    else:
+        regime_result = run_regime_detection(config_path=args.regime_config, output_dir=regime_dir)
+        regimes = regime_result.risk_flag()
+        regime_dir.mkdir(parents=True, exist_ok=True)
+        regimes.to_csv(risk_path, header=["risk_on"])
+
+    regimes = regimes.reindex(prices.index).ffill().fillna(0.0).rename("risk_on")
 
     signals_cfg = config.get("signals", {})
     momentum_scores = signals.trailing_return(
@@ -73,7 +102,7 @@ def main() -> None:
     )
 
     rebalance_dates = momentum_scores.index
-    risk_monthly = regimes.reindex(rebalance_dates, method="ffill").fillna(0)
+    risk_monthly = regimes.reindex(rebalance_dates, method="ffill").fillna(0.0)
     abs_monthly = abs_mom.reindex(rebalance_dates, method="ffill").fillna(0)
 
     investable = sorted(set(sectors + defensives + bench))
@@ -84,7 +113,7 @@ def main() -> None:
     hrp_lookback = signals_cfg.get("hrp_lookback", 60)
 
     for dt in rebalance_dates:
-        risk_on = int(risk_monthly.loc[dt, "risk_on"]) if "risk_on" in risk_monthly.columns else 0
+        risk_on = int(risk_monthly.loc[dt]) if dt in risk_monthly.index else 0
         abs_on = int(abs_monthly.loc[dt]) if dt in abs_monthly.index else 0
 
         target = pd.Series(0.0, index=investable)

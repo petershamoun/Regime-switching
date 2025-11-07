@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src import data, regimes_hmm, signals
+from regime_pipeline.sector_rotation import data, regimes_hmm, signals
 
 
 def test_download_prices_uses_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
