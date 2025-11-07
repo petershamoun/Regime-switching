@@ -21,7 +21,18 @@ def identify_bull_state(res):
     """
     Identify which regime corresponds to the 'bull' state (higher mean).
     """
-    means = [res.params[res.param_names.index(f"params[{i}].const")] for i in range(res.k_regimes)]
+    params = res.params
+
+    if isinstance(params, pd.Series):
+        means = [params.get(f"const[{i}]") for i in range(res.k_regimes)]
+    else:
+        names = getattr(res.model, "param_names", [])
+        means = []
+        for i in range(res.k_regimes):
+            name = f"const[{i}]"
+            idx = names.index(name) if name in names else i
+            means.append(params[idx])
+
     return int(np.argmax(means))
 
 if __name__ == "__main__":

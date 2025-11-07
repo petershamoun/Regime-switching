@@ -16,7 +16,7 @@ def load_prices():
     start = cfg["data"]["start"]
     end = cfg["data"]["end"]
 
-    data = yf.download(tickers, start=start, end=end)["Adj Close"]
+    data = yf.download(tickers, start=start, end=end, auto_adjust=False)["Adj Close"]
     data = data.dropna()
     data = data.pct_change().dropna()
     return data
